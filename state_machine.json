@@ -1,9 +1,12 @@
 {
-    "StartAt": "LambdaTest",
+    "StartAt": "LambdaValidateForm",
     "States": {
-      "LambdaTest": {
+      "LambdaValidateForm": {
         "Type": "Task",
         "Resource": "${LambdaFunction}",
+        "Parameters": {
+            "InputDocumentKey.$": "$$.Execution.Input.detail.object.key" 
+        },
         "End": true
       }
     }

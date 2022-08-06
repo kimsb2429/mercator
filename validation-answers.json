@@ -1,6 +1,6 @@
 [
     {
-        "formId": 1,
+        "formId": "1",
         "aliasAnswers": [
             {
                 "alias": "SSN",
@@ -9,15 +9,15 @@
         ]
     },
     {
-        "formId": 2,
+        "formId": "2",
         "aliasAnswers": [
             {
                 "alias": "YTD_GROSS_PAY",
-                "validAnswers": ["134,026.84"]
+                "validAnswers": ["134,026.85"]
             },
             {
-                "alias": "GROSS_PAY",
-                "validAnswers": ["134,026.84"]
+                "alias": "YTD_GROSS_PAY_PAGE_2",
+                "validAnswers": ["134,026.85"]
             }
         ]
     }

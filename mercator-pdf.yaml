@@ -1,12 +1,26 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Mercator Text Extraction Pipeline Stack'
 Parameters:
-  PDFBucket:
-    Type:
+  DefaultBucket:
+    Type: String
+    Default: mercator-test
+    Description: default S3 bucket for the project
+  FormsBucket:
+    Type: String
+    Default: mercator-test
+    Description: S3 bucket hosting the application forms
   ScriptsBucket:
     Type: String
     Default: mercator-test
     Description: S3 bucket hosting lambda zip file
+  QueriesAnswersS3Bucket:
+    Type: String
+    Default: mercator-test
+    Description: AWS Region for Amazon Textract
+  FormsS3Prefix:
+    Type: String
+    Default: pdfs
+    Description: S3 prefix (folder) where application forms are stored
   LambdaFunctionZipFileKey:
     Type: String
     Default: lambda_function.zip
@@ -15,22 +29,38 @@ Parameters:
     Type: String
     Default: lambda_package.zip
     Description: S3 key where lambda package zip file is stored
-  LambdaRoleArn:
-    Type: String
-    Default: arn:aws:iam::706676680875:role/Lambda_Exec
-    Description: Lambda Role ARN
   StateMachineJSONKey:
     Type: String
     Default: state_machine.json
     Description: S3 key where state machine definition file is stored
+  QueriesS3Key:
+    Type: String
+    Default: queries.json
+    Description: S3 key where the queries json file is stored
+  ValidationAnswersS3Key:
+    Type: String
+    Default: validation-answers.json
+    Description: S3 key where validation answer json file is stored
+  ValidationQueriesS3Key:
+    Type: String
+    Default: validation-queries.json
+    Description: S3 key where validation queries json file is stored
   StateMachineRoleArn:
     Type: String
     Default: arn:aws:iam::706676680875:role/DefaultStepFunctionRole
     Description: State Machine Role ARN
-  LambdaFunctionArn:
+  LambdaRoleArn:
     Type: String
-    Default: arn:aws:lambda:us-east-1:706676680875:function:textractor
-    Description: Lambda Function ARN 
+    Default: arn:aws:iam::706676680875:role/Lambda_Exec
+    Description: Lambda Role ARN
+  EventBridgeInvokeStepFunctionRoleArn:
+    Type: String
+    Default: arn:aws:iam::706676680875:role/service-role/Amazon_EventBridge_Invoke_Step_Functions_1997196675
+    Description: ARN for EventBridge Role to invoke step functions
+  TextractRegionName:
+    Type: String
+    Default: us-east-1
+    Description: AWS Region for Amazon Textract
 Resources:
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -44,44 +74,68 @@ Resources:
             - lambda.amazonaws.com
           Action:
           - sts:AssumeRole
-  LambdaFunction:
+  LambdaValidateForm:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: textractor
+      FunctionName: LambdaValidateForm
       Description: Lambda function for parsing PDF using Textract
       Runtime: python3.9
       Handler: lambda_function.lambda_handler
-      Role:
-        Ref: LambdaRoleArn
+      Role: !Ref LambdaRoleArn
       Timeout: 300
       Code:
-        S3Bucket: 
-          Ref: ScriptsBucket
-        S3Key:
-          Ref: LambdaFunctionZipFileKey
-      Layers:
+        S3Bucket: !Ref ScriptsBucket
+        S3Key: !Ref LambdaFunctionZipFileKey
+      Layers: 
         - !Ref Libs
+      Environment:
+        Variables:
+          TextractRegionName: !Ref TextractRegionName
+          QueriesAnswersS3Bucket: !Ref QueriesAnswersS3Bucket
+          QueriesS3Key: !Ref QueriesS3Key
+          ValidationAnswersS3Key: !Ref ValidationAnswersS3Key
+          ValidationQueriesS3Key: !Ref ValidationQueriesS3Key         
+          FormsBucket: !Ref FormsBucket    
   Libs:
     Type: AWS::Lambda::LayerVersion
     Properties:
       LayerName: mercator-textract
       Description: Dependencies for the textract pipeline.
       Content:
-        S3Bucket: 
-          Ref: ScriptsBucket
-        S3Key:
-          Ref: LambdaPackageZipFileKey
+        S3Bucket: !Ref ScriptsBucket
+        S3Key: !Ref LambdaPackageZipFileKey
   TextractStateMachine:
     Type: AWS::StepFunctions::StateMachine
     Properties:
       StateMachineName: textractStateMachine
       DefinitionS3Location:
-        Bucket: 
-          Ref: ScriptsBucket
-        Key:
-          Ref: StateMachineJSONKey
+        Bucket: !Ref ScriptsBucket
+        Key: !Ref StateMachineJSONKey
       DefinitionSubstitutions:
-        LambdaFunction:
-          Ref: LambdaFunctionArn
-      RoleArn:
-        Ref: StateMachineRoleArn
+        LambdaFunction: !GetAtt LambdaValidateForm.Arn
+      RoleArn: !Ref StateMachineRoleArn
+  S3TextractEventsRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: S3 trigger for Textract state machine
+      Name: S3TriggerTextractStateMachine
+      EventPattern:
+        source:
+          - aws.s3
+        detail-type:
+          - Object Created
+        detail:
+          bucket:
+            name:
+              - !Ref FormsBucket
+          object:
+            key:
+              - prefix: !Ref FormsS3Prefix
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt TextractStateMachine.Arn
+          Id: TextractStateMachineId
+          RoleArn: !Ref EventBridgeInvokeStepFunctionRoleArn
+          RetryPolicy:
+            MaximumRetryAttempts: 3
+            MaximumEventAgeInSeconds: 60
