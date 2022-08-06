@@ -1,0 +1,24 @@
+[
+    {
+        "formId": 1,
+        "aliasAnswers": [
+            {
+                "alias": "SSN",
+                "validAnswers": ["123-45-6789x","123-45-6789"]
+            }
+        ]
+    },
+    {
+        "formId": 2,
+        "aliasAnswers": [
+            {
+                "alias": "YTD_GROSS_PAY",
+                "validAnswers": ["134,026.84"]
+            },
+            {
+                "alias": "GROSS_PAY",
+                "validAnswers": ["134,026.84"]
+            }
+        ]
+    }
+]

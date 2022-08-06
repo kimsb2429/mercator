@@ -1,0 +1,87 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Mercator Text Extraction Pipeline Stack'
+Parameters:
+  PDFBucket:
+    Type:
+  ScriptsBucket:
+    Type: String
+    Default: mercator-test
+    Description: S3 bucket hosting lambda zip file
+  LambdaFunctionZipFileKey:
+    Type: String
+    Default: lambda_function.zip
+    Description: S3 key where lambda function zip file is stored
+  LambdaPackageZipFileKey:
+    Type: String
+    Default: lambda_package.zip
+    Description: S3 key where lambda package zip file is stored
+  LambdaRoleArn:
+    Type: String
+    Default: arn:aws:iam::706676680875:role/Lambda_Exec
+    Description: Lambda Role ARN
+  StateMachineJSONKey:
+    Type: String
+    Default: state_machine.json
+    Description: S3 key where state machine definition file is stored
+  StateMachineRoleArn:
+    Type: String
+    Default: arn:aws:iam::706676680875:role/DefaultStepFunctionRole
+    Description: State Machine Role ARN
+  LambdaFunctionArn:
+    Type: String
+    Default: arn:aws:lambda:us-east-1:706676680875:function:textractor
+    Description: Lambda Function ARN 
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: textractor
+      Description: Lambda function for parsing PDF using Textract
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Role:
+        Ref: LambdaRoleArn
+      Timeout: 300
+      Code:
+        S3Bucket: 
+          Ref: ScriptsBucket
+        S3Key:
+          Ref: LambdaFunctionZipFileKey
+      Layers:
+        - !Ref Libs
+  Libs:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: mercator-textract
+      Description: Dependencies for the textract pipeline.
+      Content:
+        S3Bucket: 
+          Ref: ScriptsBucket
+        S3Key:
+          Ref: LambdaPackageZipFileKey
+  TextractStateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      StateMachineName: textractStateMachine
+      DefinitionS3Location:
+        Bucket: 
+          Ref: ScriptsBucket
+        Key:
+          Ref: StateMachineJSONKey
+      DefinitionSubstitutions:
+        LambdaFunction:
+          Ref: LambdaFunctionArn
+      RoleArn:
+        Ref: StateMachineRoleArn

@@ -1,0 +1,10 @@
+{
+    "StartAt": "LambdaTest",
+    "States": {
+      "LambdaTest": {
+        "Type": "Task",
+        "Resource": "${LambdaFunction}",
+        "End": true
+      }
+    }
+}

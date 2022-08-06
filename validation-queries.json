@@ -1,0 +1,20 @@
+[
+    {
+        "text": "What is the employee SSN?",
+        "alias": "SSN",
+        "pages": ["1"]
+    },
+    {
+        "text": "What is YTD gross pay?",
+        "alias": "YTD_GROSS_PAY"
+    },
+    {
+        "text": "What is year-to-date gross pay?",
+        "alias": "YTD_GROSS_PAY_PAGE_2",
+        "pages": ["2"]
+    },
+    {
+        "text": "What is gross pay?",
+        "alias": "GROSS_PAY"
+    }
+]
