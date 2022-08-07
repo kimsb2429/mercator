@@ -85,15 +85,15 @@ def lambda_handler(event, context):
     s3 = boto3.resource('s3')
     
     # read params and validation files
-    bucket = os.environ['QueriesAnswersS3Bucket']
+    queries_answers_bucket = os.environ['QueriesAnswersS3Bucket']
     queries_key = os.environ['QueriesS3Key']
     validation_queries_key = os.environ['ValidationQueriesS3Key']
     validation_answers_key = os.environ['ValidationAnswersS3Key']
     input_document_bucket = os.environ['FormsBucket']
     input_document_key = f"s3://{input_document_bucket}/{event['InputDocumentKey']}"
-    queries = json.loads(s3.Object(bucket, queries_key).get()['Body'].read().decode('utf-8'))
-    validation_queries = json.loads(s3.Object(bucket, validation_queries_key).get()['Body'].read().decode('utf-8'))
-    valid_answers = json.loads(s3.Object(bucket, validation_answers_key).get()['Body'].read().decode('utf-8'))
+    queries = json.loads(s3.Object(queries_answers_bucket, queries_key).get()['Body'].read().decode('utf-8'))
+    validation_queries = json.loads(s3.Object(queries_answers_bucket, validation_queries_key).get()['Body'].read().decode('utf-8'))
+    valid_answers = json.loads(s3.Object(queries_answers_bucket, validation_answers_key).get()['Body'].read().decode('utf-8'))
     print(f"Validation Queries: {validation_queries}")
     print(f"Valid Answers: {valid_answers}")
     
