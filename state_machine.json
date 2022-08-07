@@ -3,9 +3,42 @@
     "States": {
       "LambdaValidateForm": {
         "Type": "Task",
-        "Resource": "${LambdaFunction}",
+        "Resource": "${LambdaValidateForm}",
         "Parameters": {
             "InputDocumentKey.$": "$$.Execution.Input.detail.object.key" 
+        },
+        "ResultPath": "$.validation_output",
+        "Next": "Execute Queries or Not?"
+      },
+      "Execute Queries or Not?": {
+        "Type": "Choice",
+        "Choices": [
+            {
+                "Variable": "$.validation_output.is_valid",
+                "BooleanEquals": true,
+                "Next": "Execute Queries"
+            },
+            {
+                "Variable": "$.validation_output.is_valid",
+                "BooleanEquals": false,
+                "Next": "Handle Validation Failure"
+            }
+        ]
+      },
+      "Execute Queries": {
+        "Type": "Task",
+        "Resource": "${LambdaExecuteQueries}",
+        "Parameters": {
+            "InputDocumentKey.$": "$$.Execution.Input.detail.object.key",
+            "FormId.$": "$.validation_output.form_id"
+        },
+        "End": true
+      },
+      "Handle Validation Failure": {
+        "Type": "Task",
+        "Resource": "${LambdaHandleValidationFailure}",
+        "Parameters": {
+            "InputDocumentKey.$": "$$.Execution.Input.detail.object.key"
         },
         "End": true
       }

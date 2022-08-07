@@ -21,10 +21,18 @@ Parameters:
     Type: String
     Default: pdfs
     Description: S3 prefix (folder) where application forms are stored
-  LambdaFunctionZipFileKey:
+  LambdaValidateFormZipFileKey:
     Type: String
-    Default: lambda_function.zip
-    Description: S3 key where lambda function zip file is stored
+    Default: lambda_validate_form.zip
+    Description: S3 key where validation lambda function zip file is stored
+  LambdaExecuteQueriesZipFileKey:
+    Type: String
+    Default: lambda_execute_queries.zip
+    Description: S3 key where query-execution lambda function zip file is stored
+  LambdaHandleValidationFailureZipFileKey:
+    Type: String
+    Default: lambda_handle_validation_failure.zip
+    Description: S3 key where the zip file of the lambda function for handling validation failure is stored  
   LambdaPackageZipFileKey:
     Type: String
     Default: lambda_package.zip
@@ -45,10 +53,6 @@ Parameters:
     Type: String
     Default: validation-queries.json
     Description: S3 key where validation queries json file is stored
-  StateMachineRoleArn:
-    Type: String
-    Default: arn:aws:iam::706676680875:role/DefaultStepFunctionRole
-    Description: State Machine Role ARN
   LambdaRoleArn:
     Type: String
     Default: arn:aws:iam::706676680875:role/Lambda_Exec
@@ -62,30 +66,67 @@ Parameters:
     Default: us-east-1
     Description: AWS Region for Amazon Textract
 Resources:
-  LambdaExecutionRole:
+  StateMachineRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: TextractStateMachineInvokeLambdaRole
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - lambda.amazonaws.com
-          Action:
-          - sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service:
+                - states.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaRole
+      Path: /
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: TextractLambdaRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AmazonTextractFullAccess
+      Path: /
+  EventBridgeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: TextractEventBridgeInvokeStateMachineRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - events.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSStepFunctionsFullAccess
+      Path: /  
   LambdaValidateForm:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: LambdaValidateForm
-      Description: Lambda function for parsing PDF using Textract
+      Description: Lambda function for validating uploaded application
       Runtime: python3.9
-      Handler: lambda_function.lambda_handler
-      Role: !Ref LambdaRoleArn
+      Handler: lambda_validate_form.lambda_handler
+      Role: !GetAtt LambdaRole.Arn
       Timeout: 300
       Code:
         S3Bucket: !Ref ScriptsBucket
-        S3Key: !Ref LambdaFunctionZipFileKey
+        S3Key: !Ref LambdaValidateFormZipFileKey
       Layers: 
         - !Ref Libs
       Environment:
@@ -96,6 +137,40 @@ Resources:
           ValidationAnswersS3Key: !Ref ValidationAnswersS3Key
           ValidationQueriesS3Key: !Ref ValidationQueriesS3Key         
           FormsBucket: !Ref FormsBucket    
+  LambdaExecuteQueries:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: LambdaExecuteQueries
+      Description: Lambda function for parsing application forms using Textract
+      Runtime: python3.9
+      Handler: lambda_execute_queries.lambda_handler
+      Role: !GetAtt LambdaRole.Arn
+      Timeout: 300
+      Code:
+        S3Bucket: !Ref ScriptsBucket
+        S3Key: !Ref LambdaExecuteQueriesZipFileKey
+      Layers: 
+        - !Ref Libs
+      Environment:
+        Variables:
+          TextractRegionName: !Ref TextractRegionName
+          QueriesAnswersS3Bucket: !Ref QueriesAnswersS3Bucket
+          QueriesS3Key: !Ref QueriesS3Key      
+          FormsBucket: !Ref FormsBucket   
+  LambdaHandleValidationFailure:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: LambdaHandleValidationFailure
+      Description: Lambda function for handling validation failure
+      Runtime: python3.9
+      Handler: lambda_handle_validation_failure.lambda_handler
+      Role: !GetAtt LambdaRole.Arn
+      Timeout: 300
+      Code:
+        S3Bucket: !Ref ScriptsBucket
+        S3Key: !Ref LambdaHandleValidationFailureZipFileKey
+      Layers: 
+        - !Ref Libs 
   Libs:
     Type: AWS::Lambda::LayerVersion
     Properties:
@@ -112,8 +187,10 @@ Resources:
         Bucket: !Ref ScriptsBucket
         Key: !Ref StateMachineJSONKey
       DefinitionSubstitutions:
-        LambdaFunction: !GetAtt LambdaValidateForm.Arn
-      RoleArn: !Ref StateMachineRoleArn
+        LambdaValidateForm: !GetAtt LambdaValidateForm.Arn
+        LambdaExecuteQueries: !GetAtt LambdaExecuteQueries.Arn
+        LambdaHandleValidationFailure: !GetAtt LambdaHandleValidationFailure.Arn
+      RoleArn: !GetAtt StateMachineRole.Arn
   S3TextractEventsRule:
     Type: AWS::Events::Rule
     Properties:
