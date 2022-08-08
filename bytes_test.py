@@ -3,6 +3,8 @@
 from pdf2image import convert_from_bytes
 from PIL import Image
 import boto3, time, io
+import textractcaller as tc
+from trp import Document
 
 
 # f = open("06 106656 WET 05 SA.pdf", "rb")
@@ -18,7 +20,7 @@ import boto3, time, io
 
 s3 = boto3.resource('s3', region_name='us-east-1')
 bucket = s3.Bucket('mercator-test')
-obj = bucket.Object('06 106656 WET 05 SA.pdf')
+obj = bucket.Object('pdfs/06 106656 WET 05 SA.pdf')
 fs = obj.get()['Body'].read()
 images = convert_from_bytes(fs)
 for idx, img in enumerate(images):
@@ -26,23 +28,36 @@ for idx, img in enumerate(images):
     img.save(img_byte_arr, format='png')
     img_byte_arr = img_byte_arr.getvalue()
     break
-
-
 textract = boto3.client('textract')
-response = textract.analyze_document(
-    Document={
-        'Bytes': img_byte_arr
-    },
-    FeatureTypes=["QUERIES"],
-    QueriesConfig={
-        "Queries": [{
-            "Text": "What is the address of the registered office?",
-            "Alias": "ADDRESS_REGISTERED_OFFICE"
-        }]
-    }
-
+textract_json = tc.call_textract(
+    input_document="s3://mercator-test/pdfs/06 106656 WET 05 SA.pdf",
+    boto3_textract_client=textract
 )
-print(response)
+
+doc = Document(textract_json)
+wordlist = []
+for page in doc.pages:
+    for line in page.lines:
+        for word in line.words:
+            wordlist.append(word.text)
+words = " ".join(wordlist)
+print(words)
+if "The name of the amalgamated corporation is: (Set out in BLOCK CAPITAL LETTERS)" in words:
+    print(True)
+# response = textract.analyze_document(
+#     Document={
+#         'Bytes': img_byte_arr
+#     },
+#     FeatureTypes=["QUERIES"],
+#     QueriesConfig={
+#         "Queries": [{
+#             "Text": "What is the address of the registered office?",
+#             "Alias": "ADDRESS_REGISTERED_OFFICE"
+#         }]
+#     }
+
+# )
+# print(response)
 
 
 # # images = [Image.open(x) for x in ['Test1.jpg', 'Test2.jpg', 'Test3.jpg']]
