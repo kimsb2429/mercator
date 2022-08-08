@@ -30,7 +30,7 @@ def lambda_handler(event, context):
     
     # else, get the latest version
     else:
-        for i in range(1,500):
+        for i in range(1,250):
             if not wr.s3.does_object_exist(f'{output_path}/{i}/csv/{output_filename}'):
                 existing_df = wr.s3.read_parquet(path=f'{output_path}/{i-1}/partitions/*')
 

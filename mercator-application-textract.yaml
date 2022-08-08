@@ -196,6 +196,7 @@ Resources:
       Handler: lambda_handle_query_answers.lambda_handler
       Role: !GetAtt LambdaRole.Arn
       Timeout: 300
+      MemorySize: 512
       Code:
         S3Bucket: !Ref ScriptsBucket
         S3Key: !Ref LambdaHandleQueryAnswersZipFileKey
