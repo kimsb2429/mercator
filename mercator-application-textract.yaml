@@ -12,11 +12,15 @@ Parameters:
   ScriptsBucket:
     Type: String
     Default: mercator-test
-    Description: S3 bucket hosting lambda zip file
+    Description: S3 bucket hosting lambda zip files
   QueriesAnswersS3Bucket:
     Type: String
     Default: mercator-test
-    Description: AWS Region for Amazon Textract
+    Description: S3 bucket hosting validation queries, validation answers, and queries json files
+  OutputBucket:
+    Type: String
+    Default: mercator-test
+    Description: S3 bucket hosting output csv files
   FormsS3Prefix:
     Type: String
     Default: pdfs
@@ -33,10 +37,18 @@ Parameters:
     Type: String
     Default: lambda_handle_validation_failure.zip
     Description: S3 key where the zip file of the lambda function for handling validation failure is stored  
+  LambdaHandleQueryAnswersZipFileKey:
+    Type: String
+    Default: lambda_handle_query_answers.zip
+    Description: S3 key where the zip file of the lambda function for handling query answers is stored  
   LambdaPackageZipFileKey:
     Type: String
     Default: lambda_package.zip
     Description: S3 key where lambda package zip file is stored
+  LambdaPopplerPackageZipFileKey:
+    Type: String
+    Default: poppler.zip
+    Description: S3 key where the poppler package zip file is stored
   StateMachineJSONKey:
     Type: String
     Default: state_machine.json
@@ -98,6 +110,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/AmazonTextractFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
       Path: /
   EventBridgeRole:
     Type: AWS::IAM::Role
@@ -146,11 +159,14 @@ Resources:
       Handler: lambda_execute_queries.lambda_handler
       Role: !GetAtt LambdaRole.Arn
       Timeout: 300
+      MemorySize: 1024
       Code:
         S3Bucket: !Ref ScriptsBucket
         S3Key: !Ref LambdaExecuteQueriesZipFileKey
       Layers: 
         - !Ref Libs
+        - !Ref PopplerLibs
+        - arn:aws:lambda:us-east-1:770693421928:layer:Klayers-p39-pillow:1
       Environment:
         Variables:
           TextractRegionName: !Ref TextractRegionName
@@ -170,7 +186,25 @@ Resources:
         S3Bucket: !Ref ScriptsBucket
         S3Key: !Ref LambdaHandleValidationFailureZipFileKey
       Layers: 
-        - !Ref Libs 
+        - !Ref Libs
+  LambdaHandleQueryAnswers:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: LambdaHandleQueryAnswers
+      Description: Lambda function for handling query answers
+      Runtime: python3.9
+      Handler: lambda_handle_query_answers.lambda_handler
+      Role: !GetAtt LambdaRole.Arn
+      Timeout: 300
+      Code:
+        S3Bucket: !Ref ScriptsBucket
+        S3Key: !Ref LambdaHandleQueryAnswersZipFileKey
+      Layers: 
+        - !Ref Libs
+        - arn:aws:lambda:us-east-1:336392948345:layer:AWSDataWrangler-Python39:9
+      Environment:
+        Variables:
+          OutputBucket: !Ref OutputBucket
   Libs:
     Type: AWS::Lambda::LayerVersion
     Properties:
@@ -179,6 +213,14 @@ Resources:
       Content:
         S3Bucket: !Ref ScriptsBucket
         S3Key: !Ref LambdaPackageZipFileKey
+  PopplerLibs:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: mercator-textract-poppler
+      Description: Poppler dependencies for the textract pipeline.
+      Content:
+        S3Bucket: !Ref ScriptsBucket
+        S3Key: !Ref LambdaPopplerPackageZipFileKey
   TextractStateMachine:
     Type: AWS::StepFunctions::StateMachine
     Properties:
@@ -190,6 +232,7 @@ Resources:
         LambdaValidateForm: !GetAtt LambdaValidateForm.Arn
         LambdaExecuteQueries: !GetAtt LambdaExecuteQueries.Arn
         LambdaHandleValidationFailure: !GetAtt LambdaHandleValidationFailure.Arn
+        LambdaHandleQueryAnswers: !GetAtt LambdaHandleQueryAnswers.Arn
       RoleArn: !GetAtt StateMachineRole.Arn
   S3TextractEventsRule:
     Type: AWS::Events::Rule

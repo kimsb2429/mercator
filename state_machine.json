@@ -30,15 +30,26 @@
         "Resource": "${LambdaExecuteQueries}",
         "Parameters": {
             "InputDocumentKey.$": "$$.Execution.Input.detail.object.key",
-            "FormId.$": "$.validation_output.form_id"
+            "FormName.$": "$.validation_output.form_name"
         },
-        "End": true
+        "ResultPath": "$.execution_output",
+        "Next": "Handle Query Answers"
       },
       "Handle Validation Failure": {
         "Type": "Task",
         "Resource": "${LambdaHandleValidationFailure}",
         "Parameters": {
             "InputDocumentKey.$": "$$.Execution.Input.detail.object.key"
+        },
+        "End": true
+      },
+      "Handle Query Answers": {
+        "Type": "Task",
+        "Resource": "${LambdaHandleQueryAnswers}",
+        "Parameters": {
+            "InputDocumentKey.$": "$$.Execution.Input.detail.object.key",
+            "QueryAnswers.$": "$.execution_output.QueryAnswers",
+            "FormName.$": "$.execution_output.FormName"
         },
         "End": true
       }

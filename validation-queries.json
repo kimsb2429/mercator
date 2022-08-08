@@ -1,20 +1,22 @@
 [
     {
-        "text": "What is the employee SSN?",
-        "alias": "SSN",
-        "pages": ["1"]
+        "text": "What is the name of Form 4?",
+        "alias": "FORM_NAME_1"
     },
     {
-        "text": "What is YTD gross pay?",
-        "alias": "YTD_GROSS_PAY"
+        "text": "What is the name of the application?",
+        "alias": "FORM_NAME_2"
     },
     {
-        "text": "What is year-to-date gross pay?",
-        "alias": "YTD_GROSS_PAY_PAGE_2",
-        "pages": ["2"]
+        "text": "What is the name of the development form?",
+        "alias": "FORM_NAME_3"
     },
     {
-        "text": "What is gross pay?",
-        "alias": "GROSS_PAY"
+        "text": "What is the title of the document?",
+        "alias": "FORM_NAME_4"
+    },
+    {
+        "text": "What is the title of the Resubmission form?",
+        "alias": "FORM_NAME_5"
     }
 ]

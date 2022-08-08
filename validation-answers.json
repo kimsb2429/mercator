@@ -1,23 +1,128 @@
 [
     {
-        "formId": "1",
+        "formName": "Business Corporations Act",
         "aliasAnswers": [
             {
-                "alias": "SSN",
-                "validAnswers": ["123-45-6789x","123-45-6789"]
+                "alias": "FORM_NAME_1",
+                "validAnswers": ["Business Corporations Act"]
             }
         ]
     },
     {
-        "formId": "2",
+        "formName": "Committee of Adjustment Application",
         "aliasAnswers": [
             {
-                "alias": "YTD_GROSS_PAY",
-                "validAnswers": ["134,026.85"]
-            },
+                "alias": "FORM_NAME_2",
+                "validAnswers": [
+                    "2010 Committee of Adjustment Application"
+                    ,"2011 Committee of Adjustment Application"
+                    ,"2012 Committee of Adjustment Application"
+                    ,"2013 Committee of Adjustment Application"
+                    ,"2014 Committee of Adjustment Application"
+                    ,"2015 Committee of Adjustment Application"
+                    ,"2016 Committee of Adjustment Application"
+                    ,"2017 Committee of Adjustment Application"
+                    ,"2018 Committee of Adjustment Application"
+                    ,"2019 Committee of Adjustment Application"
+                    ,"2020 Committee of Adjustment Application"
+                    ,"2021 Committee of Adjustment Application"
+                    ,"2022 Committee of Adjustment Application"
+                    ,"2023 Committee of Adjustment Application"
+                    ,"2024 Committee of Adjustment Application"
+                    ,"2025 Committee of Adjustment Application"
+                    ,"2026 Committee of Adjustment Application"
+                    ,"2027 Committee of Adjustment Application"
+                    ,"2028 Committee of Adjustment Application"
+                    ,"2029 Committee of Adjustment Application"
+                    ,"2030 Committee of Adjustment Application"
+                    ,"2031 Committee of Adjustment Application"
+                    ,"2032 Committee of Adjustment Application"
+                    ,"2033 Committee of Adjustment Application"
+                    ,"2034 Committee of Adjustment Application"
+                    ,"2035 Committee of Adjustment Application"
+                ]
+            }
+        ]
+    },
+    {
+        "formName": "Development Approval Application",
+        "aliasAnswers": [
             {
-                "alias": "YTD_GROSS_PAY_PAGE_2",
-                "validAnswers": ["134,026.85"]
+                "alias": "FORM_NAME_3",
+                "validAnswers": [
+                    "Development Approval Application"
+                    ,"Application Development Approval"
+                    ,"Application 2010 Development Approval"
+                    ,"Application 2011 Development Approval"
+                    ,"Application 2012 Development Approval"
+                    ,"Application 2013 Development Approval"
+                    ,"Application 2014 Development Approval"
+                    ,"Application 2015 Development Approval"
+                    ,"Application 2016 Development Approval"
+                    ,"Application 2017 Development Approval"
+                    ,"Application 2018 Development Approval"
+                    ,"Application 2019 Development Approval"
+                    ,"Application 2020 Development Approval"
+                    ,"Application 2021 Development Approval"
+                    ,"Application 2022 Development Approval"
+                    ,"Application 2023 Development Approval"
+                    ,"Application 2024 Development Approval"
+                    ,"Application 2025 Development Approval"
+                    ,"Application 2026 Development Approval"
+                    ,"Application 2027 Development Approval"
+                    ,"Application 2028 Development Approval"
+                    ,"Application 2029 Development Approval"
+                    ,"Application 2030 Development Approval"
+                    ,"Application 2031 Development Approval"
+                    ,"Application 2032 Development Approval"
+                    ,"Application 2033 Development Approval"
+                    ,"Application 2034 Development Approval"
+                    ,"Application 2035 Development Approval"
+                    ,"2010 Development Approval Application"
+                    ,"2011 Development Approval Application"
+                    ,"2012 Development Approval Application"
+                    ,"2013 Development Approval Application"
+                    ,"2014 Development Approval Application"
+                    ,"2015 Development Approval Application"
+                    ,"2016 Development Approval Application"
+                    ,"2017 Development Approval Application"
+                    ,"2018 Development Approval Application"
+                    ,"2019 Development Approval Application"
+                    ,"2020 Development Approval Application"
+                    ,"2021 Development Approval Application"
+                    ,"2022 Development Approval Application"
+                    ,"2023 Development Approval Application"
+                    ,"2024 Development Approval Application"
+                    ,"2025 Development Approval Application"
+                    ,"2026 Development Approval Application"
+                    ,"2027 Development Approval Application"
+                    ,"2028 Development Approval Application"
+                    ,"2029 Development Approval Application"
+                    ,"2030 Development Approval Application"
+                    ,"2031 Development Approval Application"
+                    ,"2032 Development Approval Application"
+                    ,"2033 Development Approval Application"
+                    ,"2034 Development Approval Application"
+                    ,"2035 Development Approval Application"
+                ]
+            }
+        ]
+    },
+    {
+        "formName": "PREVIOUS APPLICATIONS",
+        "aliasAnswers": [
+            {
+                "alias": "FORM_NAME_4",
+                "validAnswers": ["PREVIOUS APPLICATIONS"]
+            }
+        ]
+    },
+    {
+        "formName": "Development Approval Resubmission",
+        "aliasAnswers": [
+            {
+                "alias": "FORM_NAME_5",
+                "validAnswers": ["Development Approval Resubmission"]
             }
         ]
     }
