@@ -52,13 +52,84 @@
                         "alias": "ADDRESS_REGISTERED_OWNER_OF_SUBJECT_LAND"
                     },
                     {
+                        "text": "What is the telephone (area code + number) of the Registered Owner of Subject Land??",
+                        "alias": "PHONE_REGISTERED_OWNER_OF_SUBJECT_LAND"
+                    },
+                    {
                         "text": "What is the city and state of the Registered Owner of Subject Land?",
                         "alias": "CITY_STATE_REGISTERED_OWNER_OF_SUBJECT_LAND"
                     },
                     {
                         "text": "What is the postal code of the Registered Owner of Subject Land?",
                         "alias": "POSTAL_CODE_REGISTERED_OWNER_OF_SUBJECT_LAND"
-                    }
+                    },
+                    {
+                        "text": "What is the name of the Applicant (name in full)?",
+                        "alias": "NAME_APPLICANT"
+                    },   
+                    {
+                        "text": "What is the email of the Applicant (name in full)?",
+                        "alias": "EMAIL_APPLICANT"
+                    },  
+                    {
+                        "text": "What is the second telephone (area code + number)?",
+                        "alias": "PHONE_APPLICANT"
+                    },
+                    {
+                        "text": "What is the legal description?",
+                        "alias": "LEGAL_DESCRIPTION"
+                    }   
+                ]
+            }
+        ]
+    },
+    {
+        "formName": "Development Approval Application",
+        "formQueries": [
+            {
+                "pageIdentifyingPhrase": "The applicant grants the City permission to reproduce, in whole or in part, any document submitted",
+                "queries": 
+                [
+                    {
+                        "text": "What is the name of the Registered Owner of Subject Land?",
+                        "alias": "NAME_REGISTERED_OWNER_OF_SUBJECT_LAND_DEVELOPMENT_APPROVAL_APPLICATION"
+                    },
+                    {
+                        "text": "Whose email is blank?",
+                        "alias": "EMAIL_REGISTERED_OWNER_OF_SUBJECT_LAND_DEVELOPMENT_APPROVAL_APPLICATION"
+                    },
+                    {
+                        "text": "What is the Mailling Address of the Registered Owner of Subject Land?",
+                        "alias": "ADDRESS_REGISTERED_OWNER_OF_SUBJECT_LAND_DEVELOPMENT_APPROVAL_APPLICATION"
+                    },
+                    {
+                        "text": "What is the telephone (area code + number) of the Registered Owner of Subject Land??",
+                        "alias": "PHONE_REGISTERED_OWNER_OF_SUBJECT_LAND_DEVELOPMENT_APPROVAL_APPLICATION"
+                    },
+                    {
+                        "text": "What is the city and state of the Registered Owner of Subject Land?",
+                        "alias": "CITY_STATE_REGISTERED_OWNER_OF_SUBJECT_LAND_DEVELOPMENT_APPROVAL_APPLICATION"
+                    },
+                    {
+                        "text": "What is the postal code of the Registered Owner of Subject Land?",
+                        "alias": "POSTAL_CODE_REGISTERED_OWNER_OF_SUBJECT_LAND_DEVELOPMENT_APPROVAL_APPLICATION"
+                    },
+                    {
+                        "text": "What is the name of the Applicant (name in full)?",
+                        "alias": "NAME_APPLICANT_DEVELOPMENT_APPROVAL_APPLICATION"
+                    },   
+                    {
+                        "text": "What is the email next to the Applicant name (in full) field?",
+                        "alias": "EMAIL_APPLICANT_DEVELOPMENT_APPROVAL_APPLICATION"
+                    },  
+                    {
+                        "text": "What is the second telephone (area code + number)?",
+                        "alias": "PHONE_APPLICANT_DEVELOPMENT_APPROVAL_APPLICATION"
+                    },
+                    {
+                        "text": "What is the legal description?",
+                        "alias": "LEGAL_DESCRIPTION_DEVELOPMENT_APPROVAL_APPLICATION"
+                    }      
                 ]
             }
         ]
